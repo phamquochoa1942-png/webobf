@@ -3,14 +3,26 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_URL = "https://xhider.xyz/nzcat.php/api/obfuscate";
 const USERNAME = process.env.OBF_USERNAME || "quochoa0912";
 
+// Tìm file giao diện: ưu tiên public/index.html, nếu không có thì dùng index.html ở root
+const PUBLIC_DIR = path.join(__dirname, "public");
+const PUBLIC_INDEX = path.join(PUBLIC_DIR, "index.html");
+const ROOT_INDEX = path.join(__dirname, "index.html");
+
+// Ưu tiên thư mục public nếu tồn tại, nếu không thì serve static từ root
+if (fs.existsSync(PUBLIC_DIR)) {
+  app.use(express.static(PUBLIC_DIR));
+} else {
+  app.use(express.static(__dirname));
+}
+
 app.use(express.json({ limit: "5mb" }));
-app.use(express.static(path.join(__dirname, "public")));
 
 // ===== Kho lưu script (in-memory) =====
 // Render free tier sẽ xoá khi redeploy/sleep. Nếu muốn bền, gắn database ngoài.
@@ -212,7 +224,15 @@ function sendBlockedPage(res, base, message, title = "🔒 Script riêng tư", s
 </body></html>`);
 }
 
+// Trang chủ: thử serve index.html ở public/ trước, không có thì dùng index.html ở root
+app.get("/", (req, res) => {
+  if (fs.existsSync(PUBLIC_INDEX)) return res.sendFile(PUBLIC_INDEX);
+  if (fs.existsSync(ROOT_INDEX)) return res.sendFile(ROOT_INDEX);
+  res.status(404).send("Không tìm thấy index.html. Hãy đảm bảo có file index.html ở thư mục gốc hoặc public/.");
+});
+
 // Khoi dong
 app.listen(PORT, () => {
   console.log(`🔒 Quốc Hòa Obf đang chạy tại http://localhost:${PORT}`);
 });
+ 
