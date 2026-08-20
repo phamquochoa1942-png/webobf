@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quốc Hòa Obf — Lưu trữ & Obfuscate Script</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #0f1623;
+    --panel-2: #131c2e;
+    --border: #1f2a3d;
+    --border-hover: #2d3d5a;
+    --text: #e6edf7;
+    --muted: #8a99b5;
+    --accent: #7c5cff;
+    --accent-2: #00d4a3;
+    --danger: #ff5c7c;
+    --ok: #2ecc71;
+    --shadow: 0 10px 40px rgba(0,0,0,.5);
+    --mono: "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(124,92,255,.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(0,212,163,.12), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .app { max-width: 1200px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* Header */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #4a8bff);
+    display: grid; place-items: center; font-weight: 800; font-size: 18px;
+    color: #fff; box-shadow: 0 8px 24px rgba(124,92,255,.45);
+    letter-spacing: .3px;
+  }
+  .brand h1 { font-size: 22px; font-weight: 700; letter-spacing: .3px;
+    background: linear-gradient(135deg,#fff,#b3a4ff); -webkit-background-clip: text;
+    background-clip: text; -webkit-text-fill-color: transparent; }
+  .brand p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .user-badge {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 999px; font-size: 13px;
+  }
+  .user-badge .dot { width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  .user-badge b { color: var(--accent-2); font-weight: 600; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    box-shadow: var(--shadow); display: flex; flex-direction: column;
+  }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.02);
+  }
+  .card-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+  .card-title .ic {
+    width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+    background: rgba(124,92,255,.15); color: var(--accent);
+  }
+  .card-title .ic.green { background: rgba(0,212,163,.13); color: var(--accent-2); }
+  .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  /* Toolbar */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px;
+    border-radius: 10px; border: 1px solid var(--border); background: var(--panel);
+    color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all .18s ease; user-select: none; font-family: inherit;
+  }
+  .btn:hover { border-color: var(--border-hover); background: #182236; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn svg { width: 16px; height: 16px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent), #5b8bff);
+    border-color: transparent; color: #fff; box-shadow: 0 6px 18px rgba(124,92,255,.4);
+  }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; }
+  .btn.danger { color: var(--danger); border-color: rgba(255,92,124,.3); }
+  .btn.danger:hover { background: rgba(255,92,124,.1); }
+  .btn.small { padding: 7px 11px; font-size: 12px; }
+
+  .field { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-left: auto; }
+  .field select, .field input {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 10px; border-radius: 8px; font-size: 12.5px; font-family: var(--mono); outline: none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--accent); }
+
+  /* Visibility toggle */
+  .vis-group {
+    display: flex; gap: 8px; align-items: center;
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 4px; border-radius: 10px;
+  }
+  .vis-opt {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 7px; cursor: pointer;
+    font-size: 12.5px; color: var(--muted); transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .vis-opt input { display: none; }
+  .vis-opt:hover { color: var(--text); }
+  .vis-opt.active {
+    background: linear-gradient(135deg, var(--accent), #5b8bff);
+    color: #fff; border-color: transparent;
+  }
+  .vis-opt.active.private {
+    background: linear-gradient(135deg, #ff5c7c, #ff8c5c);
+  }
+  .vis-opt svg { width: 14px; height: 14px; }
+
+  /* Editor */
+  .editor-wrap { position: relative; flex: 1; display: flex; min-height: 380px; }
+  .gutter {
+    background: rgba(0,0,0,.2); padding: 14px 10px; text-align: right;
+    color: #4a5a78; font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    user-select: none; border-right: 1px solid var(--border);
+    min-width: 52px; overflow: hidden; white-space: pre;
+  }
+  textarea {
+    flex: 1; background: transparent; border: none; resize: none; color: var(--text);
+    padding: 14px 16px; font-family: var(--mono); font-size: 13.5px; line-height: 1.6;
+    outline: none; tab-size: 2; width: 100%;
+  }
+  textarea::placeholder { color: #56657f; }
+
+  /* Output */
+  .output-box {
+    flex: 1; padding: 14px 18px; font-family: var(--mono); font-size: 13px;
+    line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+    overflow: auto; min-height: 380px; max-height: 560px; color: #cdd9ee;
+  }
+  .output-box.empty { color: var(--muted); display: grid; place-items: center; text-align: center; }
+  .output-box .placeholder { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #5a6a88; }
+  .output-box .placeholder svg { width: 44px; height: 44px; opacity: .5; }
+
+  /* Raw link box (hiện sau khi obf) */
+  .raw-box {
+    margin: 14px 18px 0; padding: 14px; border-radius: 12px;
+    background: rgba(0,212,163,.08); border: 1px solid rgba(0,212,163,.25);
+    display: none;
+  }
+  .raw-box.show { display: block; animation: fadeIn .3s ease; }
+  .raw-box.private { background: rgba(255,92,124,.08); border-color: rgba(255,92,124,.3); }
+  .raw-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .raw-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--accent-2);
+  }
+  .raw-box.private .raw-label { color: var(--danger); }
+  .raw-url {
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(0,0,0,.35); border: 1px solid var(--border);
+    padding: 8px 12px; border-radius: 8px; font-family: var(--mono);
+    font-size: 12.5px; color: #cdd9ee; word-break: break-all;
+  }
+  .raw-url code { flex: 1; }
+  .raw-url a { color: var(--accent); text-decoration: none; }
+  .raw-url a:hover { text-decoration: underline; }
+  .raw-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .raw-hint {
+    margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+  .raw-hint code {
+    background: rgba(0,0,0,.35); padding: 2px 7px; border-radius: 5px;
+    font-family: var(--mono); color: var(--accent-2);
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px);} to { opacity:1; transform: none;} }
+
+  /* Status / toast */
+  .statusbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); background: rgba(0,0,0,.15);
+  }
+  .statusbar .left { display: flex; align-items: center; gap: 10px; }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid rgba(124,92,255,.25);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin .7s linear infinite; display: none;
+  }
+  .spinner.show { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .pill { padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
+    letter-spacing: .3px; text-transform: uppercase; }
+  .pill.idle { background: rgba(138,153,181,.15); color: var(--muted); }
+  .pill.ok { background: rgba(46,204,113,.15); color: var(--ok); }
+  .pill.err { background: rgba(255,92,124,.15); color: var(--danger); }
+  .pill.run { background: rgba(124,92,255,.18); color: #b3a4ff; }
+
+  /* Dropzone */
+  .dropzone {
+    position: fixed; inset: 0; background: rgba(11,15,23,.85);
+    backdrop-filter: blur(4px); display: none;
+    align-items: center; justify-content: center; z-index: 100;
+    border: 3px dashed var(--accent);
+  }
+  .dropzone.show { display: flex; }
+  .dropzone .dz-inner { text-align: center; color: var(--text); }
+  .dropzone .dz-inner svg { width: 64px; height: 64px; color: var(--accent); margin-bottom: 14px; }
+  .dropzone h2 { font-size: 22px; margin-bottom: 6px; }
+  .dropzone p { color: var(--muted); }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; }
+  footer a { color: var(--accent); text-decoration: none; }
+  .filename-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,212,163,.1); color: var(--accent-2);
+    border: 1px solid rgba(0,212,163,.25); padding: 4px 10px;
+    border-radius: 8px; font-size: 12px; font-family: var(--mono);
+  }
+  .toast-wrap {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 10px; z-index: 200;
+  }
+  .toast {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-left: 4px solid var(--accent); padding: 12px 16px;
+    border-radius: 10px; font-size: 13px; box-shadow: var(--shadow);
+    animation: slideIn .25s ease; min-width: 240px; max-width: 360px;
+  }
+  .toast.ok { border-left-color: var(--ok); }
+  .toast.err { border-left-color: var(--danger); }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">QH</div>
+      <div>
+        <h1>Quốc Hòa Obf</h1>
+        <p>Lưu trữ script &amp; obfuscate — lấy link raw để chạy trực tiếp</p>
+      </div>
+    </div>
+    <div class="user-badge">
+      <span class="dot"></span>
+      Username: <b>quochoa0912</b>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- INPUT -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <span class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </span>
+          Mã nguồn
+        </div>
+        <div class="meta" id="fileMeta">Sẵn sàng</div>
+      </div>
+
+      <div class="toolbar">
+        <input type="file" id="fileInput" accept=".lua,.txt,.js,.py,.json,.luac" class="hidden" />
+        <button class="btn" id="uploadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload file
+        </button>
+        <button class="btn ghost" id="pasteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          Dán code
+        </button>
+        <button class="btn danger" id="clearBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Xoá
+        </button>
+
+        <div class="field">
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option value="R1">R1</option>
+            <option value="R2">R2</option>
+            <option value="R3">R3</option>
+            <option value="R4" selected>R4</option>
+            <option value="R5">R5</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Visibility -->
+      <div class="toolbar" style="border-bottom:1px solid var(--border); padding-top:0">
+        <span style="font-size:12.5px;color:var(--muted)">Chế độ:</span>
+        <div class="vis-group" id="visGroup">
+          <label class="vis-opt active" data-val="public">
+            <input type="radio" name="vis" value="public" checked />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Công khai
+          </label>
+          <label class="vis-opt private" data-val="private">
+            <input type="radio" name="vis" value="private" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Riêng tư
+          </label>
+        </div>
+        <span class="meta" id="visHint">Mọi người có link raw sẽ thấy code đã obf</span>
+      </div>
+
+      <div class="editor-wrap">
+        <div class="gutter" id="gutter">1</div>
+        <textarea id="codeInput" spellcheck="false" placeholder='-- Dán code Lua vào đây hoặc upload file...&#10;print("Hello World")'></textarea>
+      </div>
+
+      <div class="statusbar">
+        <div class="left">
+          <span class="pill idle" id="inPill">Sẵn sàng</span>
+          <span id="inFile"></span>
+        </div>
+        <div><span id="lineCount">1</span> dòng · <span id="charCount">0</span> ký tự</div>
+      </div>
+    </section>
+
+    <!-- OUTPUT -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <span class="ic green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          Kết quả &amp; Link raw
+        </div>
+        <div class="meta" id="outMeta">Chưa obfuscate</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" id="obfBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Obfuscate &amp; Lấy link
+        </button>
+        <button class="btn" id="copyBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy code
+        </button>
+        <button class="btn" id="downloadBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Tải về
+        </button>
+      </div>
+
+      <!-- Raw link box -->
+      <div class="raw-box" id="rawBox">
+        <div class="raw-head">
+          <span class="raw-label" id="rawLabel">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Link raw công khai
+          </span>
+          <span class="meta" id="rawId"></span>
+        </div>
+        <div class="raw-url">
+          <code id="rawUrl"></code>
+          <div class="raw-actions">
+            <button class="btn small" id="copyRawBtn" title="Copy link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+            <a class="btn small" id="openRawBtn" target="_blank" rel="noopener" title="Mở link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Mở
+            </a>
+          </div>
+        </div>
+        <div class="raw-hint" id="rawHint"></div>
+      </div>
+
+      <div class="output-box empty" id="output">
+        <div class="placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div>Kết quả obfuscate sẽ hiển thị ở đây.<br/>Bấm <b>Obfuscate &amp; Lấy link</b> để bắt đầu.</div>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <div class="left">
+          <span class="spinner" id="spinner"></span>
+          <span class="pill idle" id="outPill">Chờ</span>
+          <span id="statusText">Đang chờ</span>
+        </div>
+        <div id="outSize">0 ký tự</div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Backend: <a href="/api/obfuscate" target="_blank" rel="noopener">/api/obfuscate</a>
+    &nbsp;·&nbsp; Raw: <code>/raw/:id</code> &nbsp;·&nbsp;
+    Sẵn sàng deploy lên <b>Render</b> &nbsp;·&nbsp; API: xhider.xyz
+  </footer>
+</div>
+
+<div class="dropzone" id="dropzone">
+  <div class="dz-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <h2>Thả file để tải lên</h2>
+    <p>Hỗ trợ .lua, .txt, .js, .py, .json...</p>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const codeInput = $("codeInput");
+  const gutter = $("gutter");
+  const output = $("output");
+  const fileInput = $("fileInput");
+  const uploadBtn = $("uploadBtn");
+  const pasteBtn = $("pasteBtn");
+  const clearBtn = $("clearBtn");
+  const obfBtn = $("obfBtn");
+  const copyBtn = $("copyBtn");
+  const downloadBtn = $("downloadBtn");
+  const presetSel = $("preset");
+  const spinner = $("spinner");
+  const inPill = $("inPill");
+  const outPill = $("outPill");
+  const statusText = $("statusText");
+  const lineCount = $("lineCount");
+  const charCount = $("charCount");
+  const outSize = $("outSize");
+  const outMeta = $("outMeta");
+  const fileMeta = $("fileMeta");
+  const inFile = $("inFile");
+  const dropzone = $("dropzone");
+  const toastWrap = $("toastWrap");
+  const visGroup = $("visGroup");
+  const visHint = $("visHint");
+  const rawBox = $("rawBox");
+  const rawLabel = $("rawLabel");
+  const rawUrl = $("rawUrl");
+  const rawId = $("rawId");
+  const rawHint = $("rawHint");
+  const copyRawBtn = $("copyRawBtn");
+  const openRawBtn = $("openRawBtn");
+
+  let currentFileName = "";
+  let obfuscatedContent = "";
+  let visibility = "public";
+
+  // Toast
+  function toast(msg, type = "") {
+    const el = document.createElement("div");
+    el.className = "toast " + type;
+    el.textContent = msg;
+    toastWrap.appendChild(el);
+    setTimeout(() => {
+      el.style.transition = "opacity .3s, transform .3s";
+      el.style.opacity = "0"; el.style.transform = "translateX(20px)";
+      setTimeout(() => el.remove(), 300);
+    }, 2800);
+  }
+
+  // Gutter
+  function updateGutter() {
+    const lines = codeInput.value.split("\n").length;
+    let nums = "";
+    for (let i = 1; i <= lines; i++) nums += i + (i < lines ? "\n" : "");
+    gutter.textContent = nums;
+    lineCount.textContent = lines;
+    charCount.textContent = codeInput.value.length;
+    gutter.scrollTop = codeInput.scrollTop;
+  }
+  codeInput.addEventListener("input", () => { updateGutter(); setInPill("idle","Sẵn sàng"); });
+  codeInput.addEventListener("scroll", () => { gutter.scrollTop = codeInput.scrollTop; });
+  codeInput.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const s = codeInput.selectionStart, en = codeInput.selectionEnd;
+      codeInput.value = codeInput.value.slice(0,s) + "  " + codeInput.value.slice(en);
+      codeInput.selectionStart = codeInput.selectionEnd = s + 2;
+      updateGutter();
+    }
+  });
+
+  function setInPill(cls, text) { inPill.className = "pill " + cls; inPill.textContent = text; }
+  function setOutPill(cls, text) { outPill.className = "pill " + cls; statusText.textContent = text; }
+
+  // Visibility toggle
+  visGroup.querySelectorAll(".vis-opt").forEach(opt => {
+    opt.addEventListener("click", () => {
+      visGroup.querySelectorAll(".vis-opt").forEach(o => o.classList.remove("active"));
+      opt.classList.add("active");
+      opt.querySelector("input").checked = true;
+      visibility = opt.dataset.val;
+      visHint.textContent = visibility === "public"
+        ? "Mọi người có link raw sẽ thấy code đã obf"
+        : "Script vẫn chạy được trong executor, nhưng mở link bằng Chrome sẽ bị chặn";
+    });
+  });
+
+  // File upload
+  uploadBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", (e) => { const f = e.target.files[0]; if (f) loadFile(f); });
+  function loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      codeInput.value = ev.target.result;
+      currentFileName = file.name;
+      fileMeta.textContent = file.name + " · " + formatBytes(file.size);
+      inFile.innerHTML = '<span class="filename-tag">📄 ' + escapeHtml(file.name) + "</span>";
+      updateGutter(); setInPill("ok","Đã tải file");
+      toast("Đã tải file: " + file.name, "ok");
+    };
+    reader.onerror = () => toast("Không đọc được file","err");
+    reader.readAsText(file);
+  }
+  function formatBytes(b) {
+    if (b < 1024) return b + " B";
+    if (b < 1048576) return (b/1024).toFixed(1) + " KB";
+    return (b/1048576).toFixed(2) + " MB";
+  }
+
+  // Paste
+  pasteBtn.addEventListener("click", async () => {
+    try {
+      const txt = await navigator.clipboard.readText();
+      if (!txt) { toast("Clipboard trống","err"); return; }
+      codeInput.value = txt;
+      currentFileName = "";
+      fileMeta.textContent = "Dán từ clipboard";
+      inFile.innerHTML = "";
+      updateGutter(); setInPill("ok","Đã dán code");
+      toast("Đã dán code từ clipboard","ok");
+    } catch { toast("Không truy cập được clipboard. Hãy dán tay bằng Ctrl+V.","err"); }
+  });
+
+  // Clear
+  clearBtn.addEventListener("click", () => {
+    codeInput.value = ""; currentFileName = "";
+    fileMeta.textContent = "Sẵn sàng"; inFile.innerHTML = "";
+    updateGutter(); setInPill("idle","Sẵn sàng");
+    resetOutput();
+  });
+
+  // Drag & drop
+  ["dragenter","dragover"].forEach(ev =>
+    document.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add("show"); }));
+  ["dragleave","drop"].forEach(ev =>
+    document.addEventListener(ev, (e) => {
+      e.preventDefault();
+      if (ev === "drop" || e.clientX <= 0 || e.clientY <= 0 ||
+          e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        dropzone.classList.remove("show");
+      }
+    }));
+  dropzone.addEventListener("drop", (e) => {
+    const f = e.dataTransfer.files[0]; if (f) loadFile(f);
+  });
+
+  // Output
+  function resetOutput() {
+    output.classList.add("empty");
+    output.innerHTML = '<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div>Kết quả obfuscate sẽ hiển thị ở đây.<br/>Bấm <b>Obfuscate &amp; Lấy link</b> để bắt đầu.</div></div>';
+    obfuscatedContent = "";
+    copyBtn.disabled = true; downloadBtn.disabled = true;
+    outSize.textContent = "0 ký tự"; outMeta.textContent = "Chưa obfuscate";
+    setOutPill("idle","Đang chờ");
+    rawBox.classList.remove("show","private");
+    openRawBtn.href = "#";
+  }
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function setOutput(text) {
+    output.classList.remove("empty");
+    output.textContent = text;
+    obfuscatedContent = text;
+    copyBtn.disabled = false; downloadBtn.disabled = false;
+    outSize.textContent = text.length + " ký tự";
+  }
+
+  // Obfuscate (gọi backend cùng gốc -> không CORS)
+  obfBtn.addEventListener("click", async () => {
+    const content = codeInput.value;
+    if (!content.trim()) { toast("Chưa có code","err"); setOutPill("err","Thiếu code"); return; }
+    const preset = presetSel.value;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/obfuscate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preset, content, visibility }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.success) {
+        throw new Error((data && data.error) || ("HTTP " + res.status));
+      }
+      setOutput(data.result);
+      setOutPill("ok","Thành công");
+      outMeta.textContent = "Preset " + data.preset + " · " +
+        new Date().toLocaleTimeString("vi-VN");
+      showRawBox(data);
+      toast("Obfuscate xong! Link " + (data.visibility === "public" ? "công khai" : "riêng tư"), "ok");
+    } catch (err) {
+      console.error(err);
+      setOutPill("err","Lỗi"); outMeta.textContent = "Lỗi";
+      output.classList.remove("empty");
+      output.innerHTML = '<div style="color:var(--danger);white-space:pre-wrap;font-family:var(--mono)">❌ Obfuscate thất bại:\n' + escapeHtml(err.message) + "</div>";
+      toast("Lỗi: " + err.message, "err");
+    } finally { setLoading(false); }
+  });
+
+  function showRawBox(data) {
+    rawBox.classList.add("show");
+    rawBox.classList.toggle("private", data.visibility === "private");
+    rawUrl.innerHTML = "";
+    const a = document.createElement("a");
+    a.href = data.rawUrl; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = data.rawUrl;
+    rawUrl.appendChild(a);
+    openRawBtn.href = data.rawUrl;
+    rawId.textContent = "ID: " + data.id + " · " + data.length + " ký tự";
+
+    if (data.visibility === "public") {
+      rawLabel.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Link raw công khai';
+      rawHint.innerHTML = '✅ Ai có link này cũng thấy code đã obf. Dùng để chạy script:<br>' +
+        '<code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
+    } else {
+      rawLabel.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Link raw riêng tư';
+      rawHint.innerHTML = '🔒 Script vẫn <b>chạy bình thường</b> trong executor/loader, nhưng nếu ai đó <b>dán link này lên Chrome/Cốc Cốc</b> sẽ bị chặn cảnh báo và tự động đẩy về trang chính.<br>' +
+        'Chạy: <code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
+    }
+  }
+
+  function setLoading(on) {
+    obfBtn.disabled = on;
+    spinner.classList.toggle("show", on);
+    if (on) {
+      setOutPill("run","Đang obfuscate...");
+      outMeta.textContent = "Đang gọi API...";
+      output.classList.remove("empty");
+      output.innerHTML = '<div style="color:var(--muted);display:grid;place-items:center;height:100%;text-align:center"><div><div class="spinner show" style="margin:0 auto 12px"></div>Đang obfuscate &amp; tạo link raw...</div></div>';
+    }
+  }
+
+  // Copy code
+  copyBtn.addEventListener("click", async () => {
+    if (!obfuscatedContent) return;
+    try { await navigator.clipboard.writeText(obfuscatedContent); toast("Đã copy code","ok"); }
+    catch {
+      const ta = document.createElement("textarea"); ta.value = obfuscatedContent;
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); toast("Đã copy code","ok"); }
+      catch { toast("Không copy được","err"); }
+      ta.remove();
+    }
+  });
+
+  // Copy raw link
+  copyRawBtn.addEventListener("click", async () => {
+    const link = rawUrl.querySelector("a");
+    if (!link) return;
+    try { await navigator.clipboard.writeText(link.href); toast("Đã copy link raw","ok"); }
+    catch { toast("Không copy được","err"); }
+  });
+
+  // Download
+  downloadBtn.addEventListener("click", () => {
+    if (!obfuscatedContent) return;
+    const base = currentFileName ? currentFileName.replace(/\.[^.]+$/, "") : "script";
+    const blob = new Blob([obfuscatedContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = base + "_obf.lua";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Đã tải " + base + "_obf.lua","ok");
+  });
+
+  // Init
+  updateGutter();
+  resetOutput();
+})();
+</script>
+</body>
+</html>
