@@ -2,289 +2,574 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0a0e17">
 <title>Quốc Hòa Obf — Script Hub</title>
 <style>
+/* ============ RESET & TOKENS ============ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0e17; --bg2:#0e1422; --panel:#111a2c; --panel2:#15203a;
-  --border:#1e2a44; --border2:#2a3a5c; --text:#e8eef9; --muted:#8896b3;
-  --accent:#7c5cff; --accent2:#00d4a3; --danger:#ff5470; --warn:#ffb347; --ok:#2ecc71;
-  --mono:"JetBrains Mono","Fira Code",Consolas,monospace;
-  --shadow:0 12px 48px rgba(0,0,0,.55);
+  --bg:#070b14; --bg2:#0c1220; --panel:#101a2e; --panel2:#15213a;
+  --panel3:#1a2845; --border:#1f2d4a; --border2:#2d4068;
+  --text:#eaf0fb; --muted:#7d8bab; --muted2:#5a6a8a;
+  --accent:#7c5cff; --accent-l:#9d85ff; --accent-d:#5a3fd8;
+  --accent2:#00d4a3; --accent2-d:#00a880;
+  --danger:#ff4d6d; --danger-l:#ff7a92; --warn:#ffb347; --ok:#2ecc71;
+  --grad:linear-gradient(135deg,#7c5cff 0%,#5b8bff 100%);
+  --grad2:linear-gradient(135deg,#00d4a3 0%,#0091ff 100%);
+  --grad-danger:linear-gradient(135deg,#ff4d6d 0%,#ff8c42 100%);
+  --mono:"JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --radius:14px; --radius-sm:10px; --radius-xs:8px;
+  --shadow:0 12px 40px rgba(0,0,0,.5);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.6);
+  --sidebar-w:280px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html,body{height:100%;overflow-x:hidden}
 body{
+  font-family:var(--sans);
   background:
-    radial-gradient(900px 500px at 85% -10%,rgba(124,92,255,.18),transparent 60%),
-    radial-gradient(800px 500px at -10% 110%,rgba(0,212,163,.12),transparent 60%),
+    radial-gradient(1000px 600px at 90% -20%,rgba(124,92,255,.15),transparent 55%),
+    radial-gradient(800px 500px at -10% 110%,rgba(0,212,163,.10),transparent 55%),
     var(--bg);
   color:var(--text);
-  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
   min-height:100vh;
 }
-button{font-family:inherit}
-::-webkit-scrollbar{width:10px;height:10px}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+a{color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#243353;border-radius:10px}
+::-webkit-scrollbar-thumb{background:#243353;border-radius:8px}
 ::-webkit-scrollbar-thumb:hover{background:#34476e}
 
-/* ===== Login screen ===== */
+/* ============ AUTH SCREEN ============ */
 .auth-screen{
-  position:fixed;inset:0;display:grid;place-items:center;z-index:50;padding:20px;
+  position:fixed;inset:0;display:grid;place-items:center;z-index:50;
+  padding:20px;
+  background:
+    radial-gradient(600px 400px at 50% 0%,rgba(124,92,255,.2),transparent 60%),
+    radial-gradient(500px 400px at 50% 100%,rgba(0,212,163,.12),transparent 60%),
+    var(--bg);
 }
 .auth-card{
-  width:100%;max-width:420px;background:linear-gradient(180deg,var(--panel),var(--panel2));
-  border:1px solid var(--border);border-radius:20px;padding:38px 32px;box-shadow:var(--shadow);
-  animation:pop .35s ease;
+  width:100%;max-width:420px;
+  background:linear-gradient(180deg,rgba(21,33,58,.85),rgba(16,26,46,.95));
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:22px;padding:38px 32px;
+  box-shadow:var(--shadow-lg);
+  animation:pop .4s cubic-bezier(.2,.9,.3,1.2);
 }
-@keyframes pop{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pop{from{transform:translateY(16px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 .auth-logo{
-  width:64px;height:64px;border-radius:16px;margin:0 auto 18px;
-  background:linear-gradient(135deg,var(--accent),#4a8bff);
-  display:grid;place-items:center;font-weight:800;font-size:24px;color:#fff;
-  box-shadow:0 10px 28px rgba(124,92,255,.5);
+  width:68px;height:68px;border-radius:18px;margin:0 auto 18px;
+  background:var(--grad);
+  display:grid;place-items:center;font-weight:800;font-size:26px;color:#fff;
+  box-shadow:0 12px 32px rgba(124,92,255,.5),inset 0 1px 0 rgba(255,255,255,.2);
+  position:relative;
 }
-.auth-card h1{text-align:center;font-size:22px;margin-bottom:4px;
-  background:linear-gradient(135deg,#fff,#b3a4ff);-webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent}
-.auth-card .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:26px}
-.tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:22px}
-.tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);transition:.15s}
-.tab.active{background:linear-gradient(135deg,var(--accent),#5b8bff);color:#fff}
+.auth-logo::after{
+  content:"";position:absolute;inset:-2px;border-radius:20px;
+  background:var(--grad);filter:blur(14px);opacity:.4;z-index:-1;
+}
+.auth-card h1{
+  text-align:center;font-size:24px;font-weight:800;letter-spacing:-.3px;
+  background:linear-gradient(135deg,#fff 30%,#b3a4ff 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.auth-card .sub{text-align:center;color:var(--muted);font-size:13px;margin:6px 0 26px;line-height:1.5}
+.tabs{
+  display:flex;background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:4px;margin-bottom:22px;
+}
+.tab{
+  flex:1;padding:11px;text-align:center;border-radius:9px;cursor:pointer;
+  font-size:13.5px;font-weight:600;color:var(--muted);transition:.2s;
+}
+.tab.active{
+  background:var(--grad);color:#fff;
+  box-shadow:0 4px 14px rgba(124,92,255,.4);
+}
 .field-group{margin-bottom:14px}
-.field-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.field-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:600;letter-spacing:.2px}
 .field-group input{
-  width:100%;padding:11px 14px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:10px;color:var(--text);font-size:14px;outline:none;transition:.15s;
+  width:100%;padding:13px 15px;background:var(--bg2);
+  border:1.5px solid var(--border);border-radius:11px;color:var(--text);
+  font-size:15px;outline:none;transition:.18s;
 }
-.field-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
-.btn-block{width:100%;padding:12px;margin-top:8px;border:none;border-radius:10px;
-  background:linear-gradient(135deg,var(--accent),#5b8bff);color:#fff;font-weight:600;font-size:14px;
-  cursor:pointer;box-shadow:0 8px 22px rgba(124,92,255,.4);transition:.15s}
-.btn-block:hover{filter:brightness(1.08);transform:translateY(-1px)}
-.btn-block:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.auth-foot{text-align:center;margin-top:18px;font-size:12px;color:var(--muted)}
+.field-group input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(124,92,255,.15);
+  background:var(--panel);
+}
+.btn-block{
+  width:100%;padding:14px;margin-top:8px;border:none;border-radius:12px;
+  background:var(--grad);color:#fff;font-weight:700;font-size:14.5px;
+  cursor:pointer;box-shadow:0 8px 24px rgba(124,92,255,.4);
+  transition:.18s;letter-spacing:.2px;
+}
+.btn-block:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-block:active{transform:translateY(0)}
+.btn-block:disabled{opacity:.6;cursor:not-allowed;transform:none;filter:none}
+.auth-foot{text-align:center;margin-top:18px;font-size:12.5px;color:var(--muted2);line-height:1.5}
 
-/* ===== App layout ===== */
-.app{display:none;min-height:100vh}
+/* ============ APP LAYOUT ============ */
+.app{display:none;min-height:100vh;position:relative}
 .app.show{display:flex}
+
 .sidebar{
-  width:280px;flex-shrink:0;background:linear-gradient(180deg,var(--panel),var(--bg2));
-  border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;
-  position:sticky;top:0;
+  width:var(--sidebar-w);flex-shrink:0;
+  background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;
+  position:sticky;top:0;z-index:30;
 }
-.sb-head{padding:20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
-.sb-logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#4a8bff);
-  display:grid;place-items:center;font-weight:800;color:#fff;font-size:15px}
-.sb-head h2{font-size:15px;line-height:1.2}
-.sb-head p{font-size:11px;color:var(--muted)}
-.sb-actions{padding:16px;border-bottom:1px solid var(--border)}
+.sb-head{
+  padding:18px 18px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.sb-logo{
+  width:42px;height:42px;border-radius:12px;
+  background:var(--grad);display:grid;place-items:center;
+  font-weight:800;color:#fff;font-size:15px;flex-shrink:0;
+  box-shadow:0 6px 16px rgba(124,92,255,.4);
+}
+.sb-head .titles{min-width:0}
+.sb-head h2{font-size:15px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-head p{font-size:11px;color:var(--muted);margin-top:2px}
+
+.sb-new-wrap{padding:14px 14px 0}
 .sb-new{
-  width:100%;padding:11px;border:none;border-radius:10px;
-  background:linear-gradient(135deg,var(--accent),#5b8bff);color:#fff;font-weight:600;font-size:13.5px;
+  width:100%;padding:12px;border:none;border-radius:11px;
+  background:var(--grad);color:#fff;font-weight:700;font-size:13.5px;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 6px 18px rgba(124,92,255,.35);transition:.15s;
+  box-shadow:0 6px 18px rgba(124,92,255,.35);transition:.18s;
 }
 .sb-new:hover{filter:brightness(1.08);transform:translateY(-1px)}
-.sb-search{padding:12px 16px 0}
+.sb-new:active{transform:translateY(0)}
+.sb-new svg{width:16px;height:16px}
+
+.sb-search{padding:12px 14px 0;position:relative}
 .sb-search input{
-  width:100%;padding:9px 12px 9px 34px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:9px;color:var(--text);font-size:13px;outline:none;
+  width:100%;padding:10px 12px 10px 34px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:10px;color:var(--text);
+  font-size:13px;outline:none;transition:.15s;
 }
-.sb-search input:focus{border-color:var(--accent)}
-.sb-search{position:relative}
-.sb-search svg{position:absolute;left:26px;top:50%;transform:translateY(-50%);
-  width:14px;height:14px;color:var(--muted);margin-top:6px}
-.script-list{flex:1;overflow-y:auto;padding:8px 10px}
+.sb-search input:focus{border-color:var(--accent);background:var(--panel)}
+.sb-search .s-ic{
+  position:absolute;left:24px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--muted);margin-top:6px;pointer-events:none;
+}
+
+.script-list{flex:1;overflow-y:auto;padding:10px 10px 6px}
 .script-item{
-  padding:11px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;
+  padding:11px 12px;border-radius:10px;cursor:pointer;margin-bottom:3px;
   border:1px solid transparent;transition:.12s;
+  position:relative;
 }
 .script-item:hover{background:var(--panel2);border-color:var(--border)}
-.script-item.active{background:rgba(124,92,255,.12);border-color:rgba(124,92,255,.35)}
-.si-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  display:flex;align-items:center;gap:7px}
-.si-meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:8px;align-items:center}
-.si-badge{font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
-.si-badge.pub{background:rgba(0,212,163,.15);color:var(--accent2)}
-.si-badge.priv{background:rgba(255,84,112,.15);color:var(--danger)}
-.si-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.script-item.active{
+  background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(124,92,255,.04));
+  border-color:rgba(124,92,255,.35);
+}
+.script-item.active::before{
+  content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;
+  background:var(--grad);border-radius:0 3px 3px 0;
+}
+.si-name{
+  font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;display:flex;align-items:center;gap:8px;
+}
+.si-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .si-dot.obf{background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
 .si-dot.plain{background:var(--warn)}
-.sb-user{padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sb-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),#008cff);
-  display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px;text-transform:uppercase}
-.sb-user-info{flex:1;min-width:0}
-.sb-user-info .un{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-user-info .st{font-size:11px;color:var(--accent2)}
-.icon-btn{
-  background:var(--bg2);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;
-  color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.15s;
+.si-name .nm{overflow:hidden;text-overflow:ellipsis}
+.si-meta{
+  font-size:10.5px;color:var(--muted);margin-top:5px;
+  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
 }
-.icon-btn:hover{color:var(--danger);border-color:rgba(255,84,112,.4);background:rgba(255,84,112,.08)}
+.si-badge{
+  font-size:9px;padding:2px 7px;border-radius:99px;font-weight:700;
+  letter-spacing:.4px;text-transform:uppercase;line-height:1.4;
+}
+.si-badge.pub{background:rgba(0,212,163,.13);color:var(--accent2)}
+.si-badge.priv{background:rgba(255,77,109,.13);color:var(--danger)}
+.si-empty{
+  padding:30px 16px;text-align:center;color:var(--muted2);
+  font-size:12px;line-height:1.7;
+}
 
-/* Main */
-.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.sb-user{
+  padding:12px 14px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,.15);
+}
+.sb-avatar{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--grad2);display:grid;place-items:center;
+  font-weight:700;color:#fff;font-size:15px;text-transform:uppercase;flex-shrink:0;
+}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-info .un{
+  font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sb-user-info .st{font-size:10.5px;color:var(--accent2);display:flex;align-items:center;gap:5px;margin-top:1px}
+.sb-user-info .st::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:var(--accent2);
+  box-shadow:0 0 6px var(--accent2);
+}
+.icon-btn{
+  background:var(--bg2);border:1px solid var(--border);width:36px;height:36px;
+  border-radius:10px;color:var(--muted);cursor:pointer;
+  display:grid;place-items:center;transition:.15s;flex-shrink:0;
+}
+.icon-btn:hover{color:var(--danger);border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.08)}
+.icon-btn svg{width:16px;height:16px}
+
+/* Mobile menu button (hidden on desktop) */
+.menu-btn{
+  display:none;width:40px;height:40px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);color:var(--text);
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.menu-btn svg{width:20px;height:20px}
+
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  backdrop-filter:blur(3px);z-index:25;
+}
+.sidebar-overlay.show{display:block}
+
+/* ============ MAIN ============ */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+
 .topbar{
-  padding:14px 24px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:14px;background:rgba(17,26,44,.6);
-  backdrop-filter:blur(8px);position:sticky;top:0;z-index:10;
+  padding:12px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:rgba(12,18,32,.75);backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:10;
 }
-.topbar input.name-input{
-  flex:1;background:transparent;border:none;color:var(--text);font-size:18px;font-weight:700;outline:none;
-  padding:6px 8px;border-radius:8px;border:1px solid transparent;min-width:0;
+.name-input-wrap{
+  flex:1;display:flex;align-items:center;gap:8px;min-width:0;
 }
-.topbar input.name-input:hover{border-color:var(--border)}
-.topbar input.name-input:focus{border-color:var(--accent);background:var(--bg2)}
-.tb-actions{display:flex;gap:8px;flex-shrink:0}
+.name-input-wrap .name-ic{
+  width:16px;height:16px;color:var(--muted);flex-shrink:0;
+}
+.name-input{
+  flex:1;background:transparent;border:1px solid transparent;
+  color:var(--text);font-size:17px;font-weight:700;outline:none;
+  padding:7px 9px;border-radius:8px;min-width:0;letter-spacing:-.2px;
+  transition:.15s;
+}
+.name-input:hover{border-color:var(--border)}
+.name-input:focus{border-color:var(--accent);background:var(--bg2)}
+.tb-actions{display:flex;gap:7px;flex-shrink:0}
+.tb-actions .btn-label{display:inline}
 
 /* Buttons */
 .btn{
-  display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:10px;
-  border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:13px;
-  font-weight:500;cursor:pointer;transition:.15s;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:7px;padding:10px 14px;
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:var(--panel);color:var(--text);font-size:13px;font-weight:600;
+  cursor:pointer;transition:.15s;white-space:nowrap;
 }
 .btn:hover{border-color:var(--border2);background:var(--panel2);transform:translateY(-1px)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn svg{width:15px;height:15px}
-.btn.primary{background:linear-gradient(135deg,var(--accent),#5b8bff);border-color:transparent;
-  box-shadow:0 6px 18px rgba(124,92,255,.35)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn svg{width:16px;height:16px}
+.btn.primary{
+  background:var(--grad);border-color:transparent;color:#fff;
+  box-shadow:0 6px 18px rgba(124,92,255,.35);
+}
 .btn.primary:hover{filter:brightness(1.08)}
-.btn.ok{background:linear-gradient(135deg,var(--accent2),#008cff);border-color:transparent;color:#fff}
-.btn.danger{color:var(--danger);border-color:rgba(255,84,112,.3)}
-.btn.danger:hover{background:rgba(255,84,112,.1)}
+.btn.ok{background:var(--grad2);border-color:transparent;color:#fff}
+.btn.danger{color:var(--danger);border-color:rgba(255,77,109,.3)}
+.btn.danger:hover{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.5)}
 .btn.ghost{background:transparent}
+.btn.icon-only{padding:10px}
+.btn.icon-only .btn-label{display:none}
 
 /* Visibility toggle */
-.vis-toggle{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px}
-.vis-opt{padding:6px 12px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--muted);
-  display:flex;align-items:center;gap:6px;transition:.12s}
+.vis-toggle{
+  display:flex;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:3px;
+}
+.vis-opt{
+  padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12.5px;
+  color:var(--muted);display:flex;align-items:center;gap:6px;transition:.15s;
+  font-weight:600;
+}
 .vis-opt input{display:none}
-.vis-opt.active{background:linear-gradient(135deg,var(--accent2),#008cff);color:#fff}
-.vis-opt.active.priv{background:linear-gradient(135deg,var(--danger),#ff8c5c)}
-.vis-opt svg{width:13px;height:13px}
+.vis-opt:hover{color:var(--text)}
+.vis-opt.active{
+  background:var(--grad2);color:#fff;
+  box-shadow:0 3px 10px rgba(0,145,255,.3);
+}
+.vis-opt.active.priv{
+  background:var(--grad-danger);
+  box-shadow:0 3px 10px rgba(255,77,109,.3);
+}
+.vis-opt svg{width:14px;height:14px}
+.vis-opt .v-label{display:inline}
 
-/* Editor split */
-.editor-area{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0}
-@media(max-width:1000px){.editor-area{grid-template-columns:1fr}.sidebar{width:240px}}
-@media(max-width:700px){.sidebar{display:none}.editor-area{grid-template-columns:1fr}}
+/* ============ EDITOR ============ */
+.editor-area{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0;overflow:hidden}
 .pane{display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .pane + .pane{border-left:1px solid var(--border)}
 .pane-head{
-  padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;
-  display:flex;align-items:center;justify-content:space-between;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,.015);
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  font-size:11.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.6px;
+  background:rgba(255,255,255,.015);flex-shrink:0;
 }
-.pane-head .preset-sel{display:flex;align-items:center;gap:6px}
-.pane-head select{
+.pane-head-right{display:flex;align-items:center;gap:10px}
+.preset-wrap{display:flex;align-items:center;gap:6px}
+.preset-wrap select{
   background:var(--bg2);border:1px solid var(--border);color:var(--text);
-  padding:5px 8px;border-radius:7px;font-size:12px;font-family:var(--mono);outline:none;
+  padding:5px 8px;border-radius:7px;font-size:12px;font-family:var(--mono);
+  outline:none;cursor:pointer;
 }
-.editor-wrap{flex:1;display:flex;min-height:0}
+.head-actions{display:flex;gap:6px}
+.head-actions .btn{padding:5px 10px;font-size:11.5px}
+
+.editor-wrap{flex:1;display:flex;min-height:0;overflow:hidden}
 .gutter{
-  background:rgba(0,0,0,.25);padding:14px 10px;text-align:right;color:#3f4d6e;
-  font-family:var(--mono);font-size:12.5px;line-height:1.65;user-select:none;
-  border-right:1px solid var(--border);min-width:48px;overflow:hidden;white-space:pre;
+  background:rgba(0,0,0,.25);padding:14px 10px;text-align:right;
+  color:#3d4c6e;font-family:var(--mono);font-size:12px;line-height:1.7;
+  user-select:none;border-right:1px solid var(--border);
+  min-width:46px;overflow:hidden;white-space:pre;
 }
 textarea.code{
   flex:1;background:transparent;border:none;resize:none;color:var(--text);
-  padding:14px 16px;font-family:var(--mono);font-size:13px;line-height:1.65;
+  padding:14px 16px;font-family:var(--mono);font-size:13px;line-height:1.7;
   outline:none;tab-size:2;width:100%;
 }
-textarea.code::placeholder{color:#3f4d6e}
+textarea.code::placeholder{color:#3d4c6e}
 
 .output{
-  flex:1;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.6;
-  white-space:pre-wrap;word-break:break-word;overflow:auto;color:#c5d1e8;
+  flex:1;padding:14px 16px;font-family:var(--mono);font-size:12.5px;
+  line-height:1.65;white-space:pre-wrap;word-break:break-word;
+  overflow:auto;color:#c5d1e8;
 }
-.output.empty{display:grid;place-items:center;text-align:center;color:var(--muted)}
-.output .ph{display:flex;flex-direction:column;align-items:center;gap:10px}
-.output .ph svg{width:40px;height:40px;opacity:.4}
+.output.empty{display:grid;place-items:center;text-align:center;color:var(--muted2)}
+.output .ph{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px}
+.output .ph svg{width:42px;height:42px;opacity:.35}
+.output .ph p{font-size:13px;line-height:1.6}
+.output .ph b{color:var(--muted)}
 
 .statusbar{
-  padding:8px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);
-  display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.2);
+  padding:8px 16px;border-top:1px solid var(--border);
+  font-size:11.5px;color:var(--muted);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:rgba(0,0,0,.25);flex-shrink:0;flex-wrap:wrap;
 }
-.pill{padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
-.pill.idle{background:rgba(136,150,179,.15);color:var(--muted)}
-.pill.ok{background:rgba(46,204,113,.15);color:var(--ok)}
-.pill.err{background:rgba(255,84,112,.15);color:var(--danger)}
-.pill.run{background:rgba(124,92,255,.18);color:#b3a4ff}
-.spinner{width:12px;height:12px;border:2px solid rgba(124,92,255,.25);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .7s linear infinite;display:none}
+.sb-left{display:flex;align-items:center;gap:9px;min-width:0}
+.sb-right{display:flex;gap:12px;flex-shrink:0}
+.pill{
+  padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;
+  letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;
+}
+.pill.idle{background:rgba(125,139,171,.13);color:var(--muted)}
+.pill.ok{background:rgba(46,204,113,.14);color:var(--ok)}
+.pill.err{background:rgba(255,77,109,.14);color:var(--danger)}
+.pill.run{background:rgba(124,92,255,.18);color:var(--accent-l)}
+.spinner{
+  width:13px;height:13px;border:2px solid rgba(124,92,255,.2);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .7s linear infinite;display:none;
+}
 .spinner.show{display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Raw box */
 .raw-box{
-  margin:12px 16px 0;padding:13px;border-radius:11px;
-  background:rgba(0,212,163,.07);border:1px solid rgba(0,212,163,.22);display:none;
+  margin:12px 14px 0;padding:14px;border-radius:12px;
+  background:rgba(0,212,163,.07);border:1px solid rgba(0,212,163,.22);
+  display:none;flex-shrink:0;
 }
-.raw-box.show{display:block;animation:fade .25s ease}
-.raw-box.priv{background:rgba(255,84,112,.07);border-color:rgba(255,84,112,.25)}
+.raw-box.show{display:block;animation:fade .3s ease}
+.raw-box.priv{background:rgba(255,77,109,.07);border-color:rgba(255,77,109,.25)}
 @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.raw-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap}
-.raw-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
-  color:var(--accent2);display:flex;align-items:center;gap:6px}
+.raw-top{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:10px;flex-wrap:wrap;
+}
+.raw-label{
+  font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--accent2);display:flex;align-items:center;gap:6px;
+}
 .raw-box.priv .raw-label{color:var(--danger)}
-.raw-url{display:flex;gap:6px;align-items:center;background:rgba(0,0,0,.4);
-  border:1px solid var(--border);padding:7px 10px;border-radius:8px;
-  font-family:var(--mono);font-size:11.5px;color:#c5d1e8;word-break:break-all}
-.raw-url code{flex:1}
-.raw-url a{color:var(--accent);text-decoration:none}
+.raw-url{
+  display:flex;gap:7px;align-items:center;background:rgba(0,0,0,.4);
+  border:1px solid var(--border);padding:8px 11px;border-radius:9px;
+  font-family:var(--mono);font-size:11.5px;color:#c5d1e8;word-break:break-all;
+}
+.raw-url code{flex:1;min-width:0}
+.raw-url a{color:var(--accent-l);text-decoration:none}
 .raw-url a:hover{text-decoration:underline}
-.raw-hint{margin-top:9px;font-size:11.5px;color:var(--muted);line-height:1.55}
-.raw-hint code{background:rgba(0,0,0,.35);padding:2px 6px;border-radius:5px;
-  font-family:var(--mono);color:var(--accent2);font-size:11px}
-
-/* Empty state in main */
-.welcome{
-  flex:1;display:grid;place-items:center;text-align:center;padding:40px;
+.raw-url-actions{display:flex;gap:5px;flex-shrink:0}
+.raw-url-actions .btn{padding:5px 9px;font-size:11px}
+.raw-hint{
+  margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.6;
 }
-.welcome-inner{max-width:420px}
-.welcome .big{
-  width:84px;height:84px;margin:0 auto 20px;border-radius:22px;
-  background:linear-gradient(135deg,var(--accent),#4a8bff);display:grid;place-items:center;
-  font-size:38px;box-shadow:0 14px 36px rgba(124,92,255,.45);
+.raw-hint code{
+  background:rgba(0,0,0,.35);padding:3px 7px;border-radius:5px;
+  font-family:var(--mono);color:var(--accent2);font-size:10.5px;
+  display:inline-block;margin-top:4px;word-break:break-all;
 }
-.welcome h2{font-size:24px;margin-bottom:10px}
-.welcome p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:22px}
-.welcome .feats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-.feat{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:left}
-.feat svg{width:20px;height:20px;color:var(--accent);margin-bottom:6px}
-.feat .ft{font-size:12.5px;font-weight:600}
-.feat .fd{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* File name bar */
-.file-bar{font-size:12px;color:var(--muted);padding:0 16px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* File bar */
+.file-bar{
+  font-size:11.5px;color:var(--muted);padding:8px 16px 0;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;min-height:8px;
+}
 .file-tag{
-  display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,163,.1);
-  color:var(--accent2);border:1px solid rgba(0,212,163,.22);padding:3px 9px;border-radius:7px;
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,212,163,.1);color:var(--accent2);
+  border:1px solid rgba(0,212,163,.22);padding:3px 9px;border-radius:7px;
   font-family:var(--mono);font-size:11px;
 }
 
+/* Welcome */
+.welcome{flex:1;display:grid;place-items:center;text-align:center;padding:30px 20px;overflow-y:auto}
+.welcome-inner{max-width:480px;width:100%}
+.welcome .big{
+  width:88px;height:88px;margin:0 auto 22px;border-radius:24px;
+  background:var(--grad);display:grid;place-items:center;font-size:40px;
+  box-shadow:0 16px 40px rgba(124,92,255,.45),inset 0 1px 0 rgba(255,255,255,.2);
+  position:relative;
+}
+.welcome .big::after{
+  content:"";position:absolute;inset:-4px;border-radius:28px;
+  background:var(--grad);filter:blur(20px);opacity:.35;z-index:-1;
+}
+.welcome h2{font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px}
+.welcome .wel-sub{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:26px}
+.welcome .feats{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;text-align:left;
+}
+.feat{
+  background:var(--panel);border:1px solid var(--border);border-radius:13px;
+  padding:14px;transition:.18s;
+}
+.feat:hover{border-color:var(--border2);background:var(--panel2);transform:translateY(-2px)}
+.feat svg{width:22px;height:22px;color:var(--accent);margin-bottom:8px}
+.feat .ft{font-size:13px;font-weight:700}
+.feat .fd{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+
 /* Toast */
-.toast-wrap{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:200}
+.toast-wrap{
+  position:fixed;bottom:18px;right:18px;left:18px;
+  display:flex;flex-direction:column;gap:10px;z-index:200;
+  pointer-events:none;
+}
 .toast{
-  background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent);
-  padding:12px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);
-  animation:slide .25s ease;min-width:240px;max-width:360px;
+  background:var(--panel2);border:1px solid var(--border);
+  border-left:4px solid var(--accent);padding:13px 16px;border-radius:12px;
+  font-size:13px;box-shadow:var(--shadow-lg);
+  animation:slideIn .3s cubic-bezier(.2,.9,.3,1.2);
+  pointer-events:auto;max-width:400px;margin-left:auto;width:fit-content;max-width:calc(100vw - 36px);
 }
 .toast.ok{border-left-color:var(--ok)}
 .toast.err{border-left-color:var(--danger)}
-@keyframes slide{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
 
 /* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(5,8,14,.75);backdrop-filter:blur(4px);
-  display:none;place-items:center;z-index:100;padding:20px}
-.modal-overlay.show{display:grid}
-.modal{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--border);
-  border-radius:16px;padding:26px;max-width:400px;width:100%;box-shadow:var(--shadow);animation:pop .3s}
-.modal h3{font-size:18px;margin-bottom:8px}
-.modal p{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(5,8,14,.8);backdrop-filter:blur(5px);
+  display:none;place-items:center;z-index:100;padding:20px;
+}
+.modal-overlay.show{display:grid;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--border);border-radius:16px;padding:26px;
+  max-width:420px;width:100%;box-shadow:var(--shadow-lg);
+  animation:pop .3s cubic-bezier(.2,.9,.3,1.2);
+}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.modal h3 .warn-ic{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(255,77,109,.15);color:var(--danger);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.modal p{color:var(--muted);font-size:13.5px;line-height:1.65;margin-bottom:22px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .hidden{display:none!important}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1024px){
+  .editor-area{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .pane + .pane{border-left:none;border-top:1px solid var(--border)}
+  textarea.code{min-height:200px}
+  .output{min-height:160px}
+}
+
+@media (max-width:768px){
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;
+    transform:translateX(-100%);transition:transform .28s cubic-bezier(.2,.9,.3,1);
+    box-shadow:var(--shadow-lg);width:280px;max-width:85vw;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .menu-btn{display:flex}
+  .topbar{padding:10px 12px;gap:8px;flex-wrap:wrap}
+  .name-input{font-size:16px;padding:6px 8px}
+  .tb-actions{gap:6px;width:100%;justify-content:flex-end;order:3}
+  .tb-actions .btn{padding:9px 12px;font-size:12.5px}
+  .btn .btn-label{display:inline}
+  .btn.icon-only{padding:9px 12px}
+  .btn.icon-only .btn-label{display:none}
+  .editor-area{grid-template-rows:auto 1fr;min-height:0}
+  .pane-head{padding:9px 12px;font-size:10.5px}
+  .vis-opt{padding:6px 10px;font-size:11.5px}
+  .preset-wrap select{padding:5px 7px;font-size:11.5px}
+  .pane-head-right{gap:7px}
+  .head-actions .btn{padding:5px 8px;font-size:11px}
+  .gutter{font-size:11.5px;padding:12px 8px;min-width:38px}
+  textarea.code{font-size:12.5px;padding:12px;line-height:1.65}
+  .output{font-size:11.5px;padding:12px}
+  .output .ph svg{width:34px;height:34px}
+  .statusbar{padding:7px 12px;font-size:10.5px;gap:6px}
+  .raw-box{margin:10px 10px 0;padding:12px}
+  .raw-url{font-size:10.5px;padding:7px 9px;flex-direction:column;align-items:stretch}
+  .raw-url-actions{justify-content:flex-end}
+  .file-bar{padding:7px 12px 0}
+  .welcome h2{font-size:22px}
+  .welcome .big{width:72px;height:72px;font-size:32px;border-radius:20px}
+  .welcome .feats{grid-template-columns:1fr;gap:8px}
+  .feat{padding:12px;display:flex;align-items:center;gap:12px}
+  .feat svg{margin-bottom:0;flex-shrink:0}
+  .auth-card{padding:30px 22px;border-radius:18px}
+  .auth-logo{width:60px;height:60px;font-size:22px;border-radius:16px}
+  .auth-card h1{font-size:21px}
+  .modal{padding:22px 18px;border-radius:14px}
+  .toast-wrap{left:12px;right:12px;bottom:12px}
+  .toast{max-width:100%;margin-left:0;font-size:12.5px;padding:12px 14px}
+}
+
+@media (max-width:480px){
+  .tb-actions{flex-wrap:wrap}
+  .tb-actions .btn{flex:1;justify-content:center;min-width:0}
+  .vis-toggle{width:100%}
+  .vis-opt{flex:1;justify-content:center}
+  .pane-head{flex-direction:column;align-items:stretch;gap:8px}
+  .pane-head-right{justify-content:space-between}
+  .preset-wrap{flex:1}
+  .preset-wrap select{flex:1}
+  .topbar .name-input-wrap{flex:1;min-width:0}
+  .name-input{font-size:15px}
+  .statusbar{flex-direction:column;align-items:flex-start;gap:4px}
+  .sb-right{width:100%;justify-content:space-between}
+}
+
+/* Hide scrollbar for cleaner mobile feel */
+@supports not selector(::-webkit-scrollbar){
+  *{scrollbar-width:thin;scrollbar-color:#243353 transparent}
+}
 </style>
 </head>
 <body>
@@ -294,21 +579,19 @@ textarea.code::placeholder{color:#3f4d6e}
   <div class="auth-card">
     <div class="auth-logo">QH</div>
     <h1>Quốc Hòa Obf</h1>
-    <p class="sub">Lưu trữ &amp; obfuscate script Lua — lấy link raw để chạy</p>
-
+    <p class="sub">Lưu trữ &amp; obfuscate script Lua — lấy link raw để chạy trực tiếp</p>
     <div class="tabs">
       <div class="tab active" data-tab="login">Đăng nhập</div>
       <div class="tab" data-tab="register">Đăng ký</div>
     </div>
-
     <form id="authForm" autocomplete="off">
       <div class="field-group">
         <label>Username</label>
-        <input type="text" id="authUser" placeholder="vd: quochoa0912" pattern="[a-zA-Z0-9_]{3,20}" required>
+        <input type="text" id="authUser" placeholder="vd: quochoa0912" pattern="[a-zA-Z0-9_]{3,20}" required autocomplete="username">
       </div>
       <div class="field-group">
         <label>Password</label>
-        <input type="password" id="authPass" placeholder="••••••••" minlength="4" required>
+        <input type="password" id="authPass" placeholder="••••••••" minlength="4" required autocomplete="current-password">
       </div>
       <button type="submit" class="btn-block" id="authBtn">Đăng nhập</button>
     </form>
@@ -318,125 +601,128 @@ textarea.code::placeholder{color:#3f4d6e}
 
 <!-- ===== APP ===== -->
 <div class="app" id="app">
-  <aside class="sidebar">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sb-head">
       <div class="sb-logo">QH</div>
-      <div>
+      <div class="titles">
         <h2>Quốc Hòa Obf</h2>
         <p>Script Hub v2.0</p>
       </div>
     </div>
-
-    <div class="sb-actions">
+    <div class="sb-new-wrap">
       <button class="sb-new" id="newScriptBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Script mới
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tạo script mới
       </button>
     </div>
-
     <div class="sb-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg class="s-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="Tìm script...">
     </div>
-
     <div class="script-list" id="scriptList"></div>
-
     <div class="sb-user">
       <div class="sb-avatar" id="userAvatar">Q</div>
       <div class="sb-user-info">
         <div class="un" id="userName">user</div>
-        <div class="st">● Online</div>
+        <div class="st">Online</div>
       </div>
       <button class="icon-btn" id="logoutBtn" title="Đăng xuất">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </aside>
 
   <main class="main" id="main">
-    <!-- Welcome state -->
+    <!-- Top bar with mobile menu -->
+    <div class="topbar" id="topbar" style="display:none">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="name-input-wrap">
+        <svg class="name-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <input type="text" class="name-input" id="scriptName" value="Untitled" placeholder="Tên script...">
+      </div>
+      <div class="tb-actions">
+        <input type="file" id="fileInput" accept=".lua,.txt" class="hidden">
+        <button class="btn" id="uploadBtn" title="Chỉ nhận .lua và .txt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="btn-label">Upload</span>
+        </button>
+        <button class="btn" id="saveBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span class="btn-label">Lưu</span>
+        </button>
+        <button class="btn danger icon-only" id="deleteBtn" title="Xoá script">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+        <button class="btn primary" id="obfBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="btn-label">Obfuscate</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Welcome -->
     <div class="welcome" id="welcome">
       <div class="welcome-inner">
         <div class="big">⚡</div>
         <h2>Chào mừng đến Quốc Hòa Obf</h2>
-        <p>Tạo script mới hoặc chọn một script từ danh sách bên trái để bắt đầu. Mọi source bạn lưu đều được gắn với tài khoản của bạn.</p>
+        <p class="wel-sub">Tạo script mới hoặc chọn một script từ danh sách bên trái để bắt đầu. Mọi source bạn lưu đều được gắn với tài khoản của bạn.</p>
         <div class="feats">
           <div class="feat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div class="ft">Upload .lua/.txt</div>
-            <div class="fd">Kéo thả hoặc chọn file</div>
+            <div><div class="ft">Upload .lua/.txt</div><div class="fd">Kéo thả hoặc chọn file</div></div>
           </div>
           <div class="feat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <div class="ft">Obfuscate R1–R5</div>
-            <div class="fd">Qua API xhider.xyz</div>
+            <div><div class="ft">Obfuscate R1–R5</div><div class="fd">Qua API xhider.xyz</div></div>
           </div>
           <div class="feat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <div class="ft">Link raw</div>
-            <div class="fd">Chạy qua loadstring</div>
+            <div><div class="ft">Link raw</div><div class="fd">Chạy qua loadstring</div></div>
           </div>
           <div class="feat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <div class="ft">Public/Private</div>
-            <div class="fd">Khoá link trên browser</div>
+            <div><div class="ft">Public/Private</div><div class="fd">Khoá link trên browser</div></div>
           </div>
         </div>
-        <button class="btn primary" id="welcomeNew">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <button class="btn primary" id="welcomeNew" style="padding:13px 26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tạo script mới
         </button>
       </div>
     </div>
 
-    <!-- Editor state -->
-    <div class="hidden" id="editor" style="flex:1;display:flex;flex-direction:column;min-height:0">
-      <div class="topbar">
-        <input type="text" class="name-input" id="scriptName" value="Untitled">
-        <div class="tb-actions">
-          <input type="file" id="fileInput" accept=".lua,.txt" class="hidden">
-          <button class="btn" id="uploadBtn" title="Chỉ nhận .lua và .txt">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Upload
-          </button>
-          <button class="btn" id="saveBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Lưu
-          </button>
-          <button class="btn danger" id="deleteBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-            Xoá
-          </button>
-          <button class="btn primary" id="obfBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            Obfuscate
-          </button>
-        </div>
-      </div>
-
+    <!-- Editor -->
+    <div class="hidden" id="editor" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
       <div class="editor-area">
+        <!-- Source pane -->
         <section class="pane">
           <div class="pane-head">
             <span>Mã nguồn</span>
-            <div class="preset-sel">
-              Preset:
-              <select id="preset">
-                <option value="R1">R1</option>
-                <option value="R2">R2</option>
-                <option value="R3">R3</option>
-                <option value="R4" selected>R4</option>
-                <option value="R5">R5</option>
-              </select>
-              <div class="vis-toggle" id="visToggle" title="Chế độ link raw">
+            <div class="pane-head-right">
+              <div class="preset-wrap">
+                <span style="color:var(--muted2);font-size:11px">Preset</span>
+                <select id="preset">
+                  <option value="R1">R1</option>
+                  <option value="R2">R2</option>
+                  <option value="R3">R3</option>
+                  <option value="R4" selected>R4</option>
+                  <option value="R5">R5</option>
+                </select>
+              </div>
+              <div class="vis-toggle" id="visToggle">
                 <label class="vis-opt active" data-v="public">
                   <input type="radio" name="vis" value="public" checked>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  Công khai
+                  <span class="v-label">Công khai</span>
                 </label>
                 <label class="vis-opt priv" data-v="private">
                   <input type="radio" name="vis" value="private">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  Riêng tư
+                  <span class="v-label">Riêng tư</span>
                 </label>
               </div>
             </div>
@@ -444,27 +730,28 @@ textarea.code::placeholder{color:#3f4d6e}
           <div class="file-bar" id="fileBar"></div>
           <div class="editor-wrap">
             <div class="gutter" id="gutter">1</div>
-            <textarea class="code" id="codeInput" spellcheck="false" placeholder="-- Dán code Lua vào đây hoặc upload file .lua/.txt...&#10;print('Hello World')"></textarea>
+            <textarea class="code" id="codeInput" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="-- Dán code Lua vào đây hoặc upload file .lua/.txt...&#10;print('Hello World')"></textarea>
           </div>
           <div class="statusbar">
-            <span><span class="pill idle" id="inPill">Sẵn sàng</span></span>
-            <span><span id="lineCount">1</span> dòng · <span id="charCount">0</span> ký tự</span>
+            <div class="sb-left"><span class="pill idle" id="inPill">Sẵn sàng</span></div>
+            <div class="sb-right"><span><span id="lineCount">1</span> dòng</span><span><span id="charCount">0</span> ký tự</span></div>
           </div>
         </section>
 
+        <!-- Output pane -->
         <section class="pane">
           <div class="pane-head">
             <span>Kết quả obfuscate</span>
-            <span style="display:flex;gap:6px">
-              <button class="btn ghost" id="copyOutBtn" disabled style="padding:5px 10px;font-size:11.5px">
+            <div class="head-actions">
+              <button class="btn ghost" id="copyOutBtn" disabled>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 Copy
               </button>
-              <button class="btn ghost" id="downloadBtn" disabled style="padding:5px 10px;font-size:11.5px">
+              <button class="btn ghost" id="downloadBtn" disabled>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 .lua
               </button>
-            </span>
+            </div>
           </div>
 
           <div class="raw-box" id="rawBox">
@@ -473,9 +760,9 @@ textarea.code::placeholder{color:#3f4d6e}
             </div>
             <div class="raw-url">
               <code id="rawUrlText"></code>
-              <div style="display:flex;gap:6px;flex-shrink:0">
-                <button class="btn ghost" id="copyRawBtn" style="padding:5px 10px;font-size:11.5px">Copy</button>
-                <a class="btn ghost" id="openRawBtn" target="_blank" rel="noopener" style="padding:5px 10px;font-size:11.5px">Mở</a>
+              <div class="raw-url-actions">
+                <button class="btn ghost" id="copyRawBtn">Copy</button>
+                <a class="btn ghost" id="openRawBtn" target="_blank" rel="noopener">Mở</a>
               </div>
             </div>
             <div class="raw-hint" id="rawHint"></div>
@@ -484,12 +771,16 @@ textarea.code::placeholder{color:#3f4d6e}
           <div class="output empty" id="output">
             <div class="ph">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <div>Kết quả sẽ hiện ở đây.<br>Bấm <b>Obfuscate</b> để bắt đầu.</div>
+              <p>Kết quả sẽ hiện ở đây.<br>Bấm <b>Obfuscate</b> để bắt đầu.</p>
             </div>
           </div>
           <div class="statusbar">
-            <span><span class="spinner" id="spinner"></span> <span class="pill idle" id="outPill">Chờ</span> <span id="statusText">Đang chờ</span></span>
-            <span id="outSize">0 ký tự</span>
+            <div class="sb-left">
+              <span class="spinner" id="spinner"></span>
+              <span class="pill idle" id="outPill">Chờ</span>
+              <span id="statusText">Đang chờ</span>
+            </div>
+            <div class="sb-right"><span id="outSize">0 ký tự</span></div>
           </div>
         </section>
       </div>
@@ -497,10 +788,15 @@ textarea.code::placeholder{color:#3f4d6e}
   </main>
 </div>
 
-<!-- Delete confirm modal -->
+<!-- Delete modal -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
-    <h3>Xoá script?</h3>
+    <h3>
+      <span class="warn-ic">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span>
+      Xoá script?
+    </h3>
     <p id="confirmText">Hành động này không thể hoàn tác. Link raw của script sẽ ngừng hoạt động.</p>
     <div class="modal-actions">
       <button class="btn ghost" id="cancelDel">Huỷ</button>
@@ -541,6 +837,18 @@ textarea.code::placeholder{color:#3f4d6e}
       setTimeout(() => el.remove(), 300);
     }, 2800);
   }
+
+  // ===== Mobile sidebar =====
+  function openSidebar() {
+    $("sidebar").classList.add("open");
+    $("sidebarOverlay").classList.add("show");
+  }
+  function closeSidebar() {
+    $("sidebar").classList.remove("open");
+    $("sidebarOverlay").classList.remove("show");
+  }
+  $("menuBtn")?.addEventListener("click", openSidebar);
+  $("sidebarOverlay")?.addEventListener("click", closeSidebar);
 
   // ===== Auth =====
   let currentTab = "login";
@@ -586,7 +894,7 @@ textarea.code::placeholder{color:#3f4d6e}
 
   // ===== App state =====
   let scripts = [];
-  let current = null;       // script đang mở
+  let current = null;
   let pendingDelete = null;
 
   async function bootApp() {
@@ -594,6 +902,7 @@ textarea.code::placeholder{color:#3f4d6e}
       const data = await api("/api/me");
       $("authScreen").style.display = "none";
       $("app").classList.add("show");
+      $("topbar").style.display = "flex";
       $("userName").textContent = data.username;
       $("userAvatar").textContent = data.username[0].toUpperCase();
       scripts = data.scripts || [];
@@ -605,7 +914,6 @@ textarea.code::placeholder{color:#3f4d6e}
     }
   }
 
-  // Auto-login nếu có token
   if (localStorage.getItem("qh_token")) bootApp();
 
   // ===== Script list =====
@@ -614,9 +922,7 @@ textarea.code::placeholder{color:#3f4d6e}
     const f = filter.toLowerCase();
     const filtered = scripts.filter(s => s.name.toLowerCase().includes(f));
     if (!filtered.length) {
-      list.innerHTML = `<div style="padding:20px 12px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6">
-        ${filter ? "Không tìm thấy script." : "Chưa có script nào.<br>Bấm \"Script mới\" để bắt đầu."}
-      </div>`;
+      list.innerHTML = `<div class="si-empty">${filter ? "Không tìm thấy script." : "Chưa có script nào.<br>Bấm \"Tạo script mới\" để bắt đầu."}</div>`;
       return;
     }
     list.innerHTML = "";
@@ -627,19 +933,18 @@ textarea.code::placeholder{color:#3f4d6e}
       el.innerHTML = `
         <div class="si-name">
           <span class="si-dot ${s.hasObfuscated ? "obf" : "plain"}"></span>
-          <span style="overflow:hidden;text-overflow:ellipsis">${escHtml(s.name)}</span>
+          <span class="nm">${escHtml(s.name)}</span>
         </div>
         <div class="si-meta">
           <span class="si-badge ${s.visibility === "private" ? "priv" : "pub"}">${s.visibility === "private" ? "🔒 riêng tư" : "🌍 công khai"}</span>
           <span>${date}</span>
         </div>`;
-      el.addEventListener("click", () => openScript(s.id));
+      el.addEventListener("click", () => { openScript(s.id); closeSidebar(); });
       list.appendChild(el);
     });
   }
 
   $("searchInput").addEventListener("input", e => renderScriptList(e.target.value));
-
   $("newScriptBtn").addEventListener("click", createScript);
   $("welcomeNew").addEventListener("click", createScript);
 
@@ -649,6 +954,7 @@ textarea.code::placeholder{color:#3f4d6e}
       scripts.unshift(s);
       renderScriptList($("searchInput").value);
       openScript(s.id);
+      closeSidebar();
       toast("Đã tạo script mới", "ok");
     } catch (err) { toast(err.message, "err"); }
   }
@@ -683,7 +989,7 @@ textarea.code::placeholder{color:#3f4d6e}
     renderScriptList($("searchInput").value);
   }
 
-  // ===== Name auto-save (debounced) =====
+  // ===== Name autosave =====
   let nameTimer;
   $("scriptName").addEventListener("input", () => {
     clearTimeout(nameTimer);
@@ -694,7 +1000,8 @@ textarea.code::placeholder{color:#3f4d6e}
   function setVis(v) {
     document.querySelectorAll(".vis-opt").forEach(o => {
       o.classList.toggle("active", o.dataset.v === v);
-      o.querySelector("input").checked = o.dataset.v === v;
+      const inp = o.querySelector("input");
+      if (inp) inp.checked = o.dataset.v === v;
     });
   }
   document.querySelectorAll(".vis-opt").forEach(o => {
@@ -705,7 +1012,7 @@ textarea.code::placeholder{color:#3f4d6e}
     });
   });
 
-  // ===== Gutter =====
+  // ===== Editor gutter =====
   const codeInput = $("codeInput");
   const gutter = $("gutter");
   function updateGutter() {
@@ -728,7 +1035,7 @@ textarea.code::placeholder{color:#3f4d6e}
     }
   });
 
-  // ===== Upload (chỉ .lua / .txt) =====
+  // ===== Upload (chỉ .lua/.txt) =====
   $("uploadBtn").addEventListener("click", () => $("fileInput").click());
   $("fileInput").addEventListener("change", e => {
     const f = e.target.files[0];
@@ -746,8 +1053,8 @@ textarea.code::placeholder{color:#3f4d6e}
       codeInput.value = ev.target.result;
       updateGutter();
       $("fileBar").innerHTML = `<span class="file-tag">📄 ${escHtml(file.name)} · ${fmtBytes(file.size)}</span>`;
-      // Tự đặt tên script theo tên file nếu đang "Untitled"
-      if ($("scriptName").value.trim() === "Untitled" || !$("scriptName").value.trim()) {
+      const sn = $("scriptName").value.trim();
+      if (sn === "Untitled" || !sn) {
         $("scriptName").value = file.name.replace(/\.(lua|txt)$/i, "");
       }
       setInPill("ok", "Đã tải file");
@@ -762,40 +1069,34 @@ textarea.code::placeholder{color:#3f4d6e}
     return (b/1048576).toFixed(2) + " MB";
   }
   // Drag drop
-  let dragDepth = 0;
-  document.addEventListener("dragenter", e => { e.preventDefault(); dragDepth++; });
+  document.addEventListener("dragenter", e => { e.preventDefault(); });
   document.addEventListener("dragover", e => e.preventDefault());
-  document.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth-1); });
   document.addEventListener("drop", e => {
-    e.preventDefault(); dragDepth = 0;
+    e.preventDefault();
     if (!$("app").classList.contains("show")) return;
     const f = e.dataTransfer.files[0];
-    if (f) {
-      if (!current) { createScript().then(() => setTimeout(() => loadFile(f), 200)); }
-      else loadFile(f);
-    }
+    if (!f) return;
+    if (!current) {
+      createScript().then(() => setTimeout(() => loadFile(f), 250));
+    } else loadFile(f);
   });
 
   // ===== Save =====
   $("saveBtn").addEventListener("click", () => saveScript({ content: codeInput.value }, true));
-  async function saveScript(patch, showToast) {
+  async function saveScript(patch, showToastMsg) {
     if (!current) return;
     try {
       const s = await api("/api/scripts/" + current.id, {
         method: "PUT",
         body: JSON.stringify({ content: codeInput.value, ...patch }),
       });
-      // Cập nhật local list
       const idx = scripts.findIndex(x => x.id === s.id);
-      if (idx >= 0) {
-        scripts[idx] = { ...scripts[idx], ...s, hasObfuscated: !!s.obfuscated };
-      } else {
-        scripts.unshift({ ...s, hasObfuscated: !!s.obfuscated });
-      }
+      if (idx >= 0) scripts[idx] = { ...scripts[idx], ...s, hasObfuscated: !!s.obfuscated };
+      else scripts.unshift({ ...s, hasObfuscated: !!s.obfuscated });
       current = s;
       setInPill("ok", "Đã lưu");
       renderScriptList($("searchInput").value);
-      if (showToast) toast("Đã lưu script", "ok");
+      if (showToastMsg) toast("Đã lưu script", "ok");
     } catch (err) {
       toast(err.message, "err");
       setInPill("err", "Lỗi lưu");
@@ -829,7 +1130,6 @@ textarea.code::placeholder{color:#3f4d6e}
     if (!content.trim()) { toast("Chưa có code", "err"); return; }
     setLoading(true);
     try {
-      // Lưu content trước rồi obf (gộp 1 call)
       const data = await api("/api/obfuscate", {
         method: "POST",
         body: JSON.stringify({
@@ -837,7 +1137,7 @@ textarea.code::placeholder{color:#3f4d6e}
           name: $("scriptName").value,
           content,
           preset: $("preset").value,
-          visibility: document.querySelector(".vis-opt.active").dataset.v,
+          visibility: document.querySelector(".vis-opt.active")?.dataset.v || "public",
         }),
       });
       setOutput(data.result);
@@ -845,7 +1145,6 @@ textarea.code::placeholder{color:#3f4d6e}
       current.obfuscated = data.result;
       current.rawUrl = data.rawUrl;
       current.visibility = data.visibility;
-      // Cập nhật list
       const idx = scripts.findIndex(s => s.id === data.id);
       if (idx >= 0) {
         scripts[idx].hasObfuscated = true;
@@ -859,7 +1158,7 @@ textarea.code::placeholder{color:#3f4d6e}
     } catch (err) {
       setOutPill("err", "Lỗi");
       $("output").classList.remove("empty");
-      $("output").innerHTML = '<div style="color:var(--danger);white-space:pre-wrap">❌ ' + escHtml(err.message) + '</div>';
+      $("output").innerHTML = '<div style="color:var(--danger);white-space:pre-wrap;padding:10px">❌ ' + escHtml(err.message) + '</div>';
       toast(err.message, "err");
     } finally { setLoading(false); }
   });
@@ -870,14 +1169,14 @@ textarea.code::placeholder{color:#3f4d6e}
     if (on) {
       setOutPill("run", "Đang obfuscate...");
       $("output").classList.remove("empty");
-      $("output").innerHTML = '<div style="display:grid;place-items:center;height:100%;color:var(--muted)"><div style="text-align:center"><div class="spinner show" style="margin:0 auto 10px"></div>Đang gọi API xhider...</div></div>';
+      $("output").innerHTML = '<div style="display:grid;place-items:center;height:100%;color:var(--muted);text-align:center;padding:20px"><div><div class="spinner show" style="margin:0 auto 12px;width:22px;height:22px;border-width:2.5px"></div>Đang gọi API xhider...</div></div>';
     }
   }
 
   // ===== Output =====
   function resetOutput() {
     $("output").className = "output empty";
-    $("output").innerHTML = '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div>Kết quả sẽ hiện ở đây.<br>Bấm <b>Obfuscate</b> để bắt đầu.</div></div>';
+    $("output").innerHTML = '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Kết quả sẽ hiện ở đây.<br>Bấm <b>Obfuscate</b> để bắt đầu.</p></div>';
     $("copyOutBtn").disabled = true;
     $("downloadBtn").disabled = true;
     $("outSize").textContent = "0 ký tự";
@@ -902,10 +1201,10 @@ textarea.code::placeholder{color:#3f4d6e}
     $("openRawBtn").href = data.rawUrl;
     if (data.visibility === "public") {
       $("rawLabel").textContent = "🔗 Link raw công khai";
-      $("rawHint").innerHTML = '✅ Ai có link cũng xem được code obf. Chạy: <code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
+      $("rawHint").innerHTML = '✅ Ai có link cũng xem được code obf. Chạy:<br><code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
     } else {
       $("rawLabel").textContent = "🔒 Link raw riêng tư";
-      $("rawHint").innerHTML = '🔒 Script vẫn chạy trong executor, nhưng <b>mở link bằng Chrome</b> sẽ bị chặn &amp; đẩy về trang chính. Chạy: <code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
+      $("rawHint").innerHTML = '🔒 Script vẫn chạy trong executor, nhưng <b>mở link bằng Chrome</b> sẽ bị chặn &amp; đẩy về trang chính.<br><code>loadstring(game:HttpGet("' + data.rawUrl + '"))()</code>';
     }
   }
 
@@ -937,7 +1236,6 @@ textarea.code::placeholder{color:#3f4d6e}
   function setInPill(c, t) { $("inPill").className = "pill " + c; $("inPill").textContent = t; }
   function setOutPill(c, t) { $("outPill").className = "pill " + c; $("statusText").textContent = t; }
 
-  // ===== Util =====
   function escHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   }
@@ -947,3 +1245,4 @@ textarea.code::placeholder{color:#3f4d6e}
 </script>
 </body>
 </html>
+ 
