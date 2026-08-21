@@ -8,7 +8,24 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_URL = "https://xhider.xyz/nzcat.php/api/obfuscate";
-const DEFAULT_USERNAME = process.env.OBF_USERNAME || "quochoa0912";
+const BASE_USERNAME = process.env.OBF_USERNAME || "quochoa0912";
+// Có thể truyền nhiều username qua env OBF_USERNAMES="user1,user2" để xoay vòng né cooldown
+const USERNAME_POOL = (process.env.OBF_USERNAMES || BASE_USERNAME)
+  .split(",").map(s => s.trim()).filter(Boolean);
+let usernameIdx = 0;
+function pickUsername() {
+  const u = USERNAME_POOL[usernameIdx % USERNAME_POOL.length];
+  usernameIdx++;
+  return u;
+}
+// Ghi log mọi lần gọi API để debug trên Render
+const DEBUG_LOGS = [];
+function pushLog(entry) {
+  entry.t = new Date().toISOString();
+  DEBUG_LOGS.unshift(entry);
+  if (DEBUG_LOGS.length > 30) DEBUG_LOGS.pop();
+  console.log("[XHIDER]", entry);
+}
 
 // ===== Static & body =====
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -132,6 +149,8 @@ app.delete("/api/scripts/:id", auth, (req, res) => {
 });
 
 // ===== Obfuscate (cần đăng nhập, lưu vào kho user) =====
+// Gọi API xhider với: timeout 50s, retry tối đa 6 lần, tự parse nhiều định dạng response,
+// nhận diện cooldown và response rỗng để thử lại.
 app.post("/api/obfuscate", auth, async (req, res) => {
   try {
     const {
@@ -142,22 +161,103 @@ app.post("/api/obfuscate", auth, async (req, res) => {
     if (!["public", "private"].includes(visibility))
       return res.status(400).json({ error: "visibility phải public/private" });
 
-    // Gọi API xhider (proxy tránh CORS)
-    const apiRes = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ preset, content, username: DEFAULT_USERNAME }),
-    });
-    const text = await apiRes.text();
-    let data; try { data = JSON.parse(text); } catch { data = null; }
-    if (!apiRes.ok) {
-      const msg = (data && (data.message || data.error)) || `API lỗi HTTP ${apiRes.status}`;
-      return res.status(apiRes.status).json({ error: msg });
-    }
+    const payload = JSON.stringify({ preset, content, username: pickUsername() });
     let result = "";
-    if (typeof data === "string") result = data;
-    else if (data) result = data.result ?? data.output ?? data.content ?? data.data ?? data.obfuscated ?? text;
-    if (!result || !String(result).trim()) return res.status(502).json({ error: "API trả về rỗng" });
+    let lastErr = "Không nhận được phản hồi từ API";
+    let lastStatus = 0;
+    let lastSnippet = "";
+    const MAX_ATTEMPTS = 5;
+    const TIMEOUT_MS = 28000;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+        const t0 = Date.now();
+
+        const apiRes = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "*/*",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          },
+          body: payload,
+          signal: ctrl.signal,
+        });
+        clearTimeout(timer);
+
+        const text = await apiRes.text();
+        const ms = Date.now() - t0;
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch { data = null; }
+
+        lastSnippet = text.slice(0, 150).replace(/\s+/g, " ");
+        lastStatus = apiRes.status;
+
+        pushLog({
+          attempt: attempt + 1, status: apiRes.status, ms,
+          bytes: text.length, isJson: !!data,
+          ctype: apiRes.headers.get("content-type") || "",
+        });
+
+        if (!apiRes.ok) {
+          lastErr = (data && (data.message || data.error)) || `API lỗi HTTP ${apiRes.status}`;
+        } else if (data && typeof data === "object" && (data.error || data.message)) {
+          lastErr = data.error || data.message;
+        } else if (typeof data === "string" && data.trim()) {
+          result = data;
+        } else if (data && typeof data === "object") {
+          result = data.result ?? data.output ?? data.content ?? data.data ?? data.obfuscated ?? "";
+          if (!result && data.success && typeof data.success === "string") result = data.success;
+          if (!result) lastErr = "API trả JSON nhưng không có field kết quả";
+        } else if (text && text.trim()) {
+          const lower = text.toLowerCase();
+          if (lower.includes("<!doctype html") || lower.includes("<html") ||
+              lower.includes("cloudflare") || lower.includes("just a moment") ||
+              lower.includes("attention required")) {
+            lastErr = `API trả HTML (có thể bị Cloudflare chặn, HTTP ${apiRes.status})`;
+          } else if (text.startsWith("--") || text.startsWith("local") || text.startsWith("return") ||
+                     text.includes("XHider") || text.includes("obfusc")) {
+            result = text;
+          } else {
+            lastErr = `API trả nội dung lạ (${text.length} bytes, không phải Lua)`;
+          }
+        } else {
+          lastErr = `API trả response rỗng (HTTP ${apiRes.status}, ${ms}ms)`;
+        }
+      } catch (fetchErr) {
+        if (fetchErr.name === "AbortError") {
+          lastErr = `API phản hồi quá ${TIMEOUT_MS / 1000}s (timeout)`;
+        } else {
+          lastErr = "Lỗi kết nối tới API: " + (fetchErr.message || "unknown");
+        }
+        pushLog({ attempt: attempt + 1, error: fetchErr.message });
+      }
+
+      if (result && result.trim()) break;
+
+      const cd = /wait\s+([\d.]+)\s*s/i.exec(lastErr || "");
+      if (cd) {
+        const wait = Math.min(parseFloat(cd[1]) + 0.8, 8);
+        pushLog({ cooldown: wait, msg: lastErr });
+        await new Promise(r => setTimeout(r, wait * 1000));
+        continue;
+      }
+
+      if (attempt < MAX_ATTEMPTS - 1) {
+        const backoff = Math.min(1.2 * Math.pow(1.5, attempt), 5);
+        await new Promise(r => setTimeout(r, backoff * 1000));
+      }
+    }
+
+    if (!result || !result.trim()) {
+      pushLog({ failed: true, error: lastErr, status: lastStatus, snippet: lastSnippet });
+      return res.status(502).json({
+        error: lastErr || "API trả về rỗng",
+        debug: { status: lastStatus, attempts: MAX_ATTEMPTS, snippet: lastSnippet.slice(0, 100) },
+      });
+    }
     result = String(result);
 
     // Tạo mới hoặc cập nhật script trong kho user
@@ -180,6 +280,7 @@ app.post("/api/obfuscate", auth, async (req, res) => {
     }
     s.rawUrl = `${getBaseUrl(req)}/raw/${s.id}`;
 
+    console.log(`[OBF] thành công cho user ${req.user.username}, script ${s.id}, ${result.length} bytes`);
     res.json({
       success: true, id: s.id, name: s.name, rawUrl: s.rawUrl,
       visibility, preset, length: result.length, result,
@@ -250,6 +351,52 @@ if(n<=0){clearInterval(t);window.location.href='${base}/';}},1000);})();</script
 </body></html>`);
 }
 
+// ===== Debug endpoint: test trực tiếp API xhider từ server =====
+app.get("/api/debug/obf", async (req, res) => {
+  const t0 = Date.now();
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
+    const username = pickUsername();
+    const apiRes = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "*/*",
+        "User-Agent": "Mozilla/5.0",
+      },
+      body: JSON.stringify({
+        preset: req.query.preset || "R4",
+        content: req.query.content || 'print("debug test")',
+        username,
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    const text = await apiRes.text();
+    res.json({
+      ok: apiRes.ok,
+      status: apiRes.status,
+      ms: Date.now() - t0,
+      bytes: text.length,
+      contentType: apiRes.headers.get("content-type"),
+      username,
+      isLua: text.startsWith("--") || text.includes("XHider"),
+      snippet: text.slice(0, 200),
+      serverTime: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({
+      ok: false, ms: Date.now() - t0,
+      error: err.message, name: err.name,
+    });
+  }
+});
+
+app.get("/api/debug/logs", (req, res) => {
+  res.json({ logs: DEBUG_LOGS });
+});
+
 app.get("/", (req, res) => {
   const idx = path.join(PUBLIC_DIR, "index.html");
   if (fs.existsSync(idx)) return res.sendFile(idx);
@@ -259,3 +406,4 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🔒 Quốc Hòa Obf chạy tại http://localhost:${PORT}`));
+ 
